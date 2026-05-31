@@ -1,6 +1,7 @@
 import json
 import os
 import boto3
+import time
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["USERS_TABLE_NAME"])
@@ -19,6 +20,12 @@ def lambda_handler(event, context):
         return response(200, {
             "users": result.get("Items", [])
         })
+    if path == "/slow":
+        time.sleep(5)
+
+        return response(200, {
+          "message": "slow response"
+    })
 
     return response(404, {
         "message": "Not Found"

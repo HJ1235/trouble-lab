@@ -51,6 +51,8 @@ resource "aws_lambda_function" "app" {
   filename         = data.archive_file.lambda_zip.output_path
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
 
+  timeout = 10
+
   environment {
   variables = {
     USERS_TABLE_NAME = aws_dynamodb_table.users.name
@@ -120,5 +122,11 @@ resource "aws_iam_role_policy" "lambda_dynamodb_read" {
 resource "aws_apigatewayv2_route" "users" {
   api_id    = aws_apigatewayv2_api.http_api.id
   route_key = "GET /users"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
+
+resource "aws_apigatewayv2_route" "slow" {
+  api_id    = aws_apigatewayv2_api.http_api.id
+  route_key = "GET /slow"
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
